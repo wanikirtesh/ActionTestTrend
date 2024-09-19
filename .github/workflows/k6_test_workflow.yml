@@ -1,0 +1,49 @@
+name: K6 Test Workflow
+
+on:
+  push:
+    branches:
+      - main  # Change to the branch you want to trigger this workflow on
+
+jobs:
+  run-k6-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Node.js environment (if required by your JavaScript file)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Adjust the Node.js version as needed
+
+      # Install k6
+      - name: Install k6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      # Run k6 tests and output results to a JSON file with a timestamp
+      - name: Run k6 test
+        run: |
+          TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+          k6 run --out json=results/result_$TIMESTAMP.json perf.js
+
+      # Update the JavaScript file with the new result file reference
+      - name: Update JavaScript file
+        run: |
+          echo "results.push('results/result_$TIMESTAMP.json');" >> path/to/your/jsfile.js
+
+      # Commit and push changes
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add results/result_$TIMESTAMP.json path/to/your/jsfile.js
+          git commit -m "Add k6 test results with timestamp"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
