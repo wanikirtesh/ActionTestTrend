@@ -6,7 +6,16 @@ on:
       - main  # Change to the branch you want to trigger this workflow on
 
 jobs:
+  set-timestamp:
+    runs-on: ubuntu-latest
+    outputs:
+      steps: ${{ steps.timestamp.outputs }}
+    steps:
+      - name: Set Timestamp
+        id: timestamp
+        run: echo "TIMESTAMP=$(date +"%Y%m%d%H%M%S")" >> $GITHUB_ENV
   run-k6-tests:
+    needs: set-timestamp
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository
@@ -17,7 +26,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Adjust the Node.js version as needed
+          node-version: '20'  # Adjust the Node.js version as needed
 
       # Install k6
       - name: Install k6
@@ -32,22 +41,21 @@ jobs:
       - name: Run k6 test
         run: |
           mkdir -p results
-          k6 run --out json=./results/result_1.json ./test/perf.js
+          k6 run --out json=./results/result_$TIMESTAMP.json ./test/perf.js
 
       # Update the JavaScript file with the new result file reference
       - name: Update JavaScript file
         run: |
-          echo "./results/result_1.json"
-          echo "results.push('results/result_1.json');" >> allResults/jsFile.js
+          echo "./results/result_$TIMESTAMP.json"
+          echo "results.push('results/result_$TIMESTAMP.json');" >> allResults/jsFile.js
 
       # Commit and push changes
       - name: Commit and push changes
         run: |
-          echo $TIMESTAMP
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add results/result_1.json allResults/jsFile.js
-          git commit -m "Add k6 test results with timestamp"
+          git add results/result_$TIMESTAMP.json allResults/jsFile.js
+          git commit -m "Add k6 test results with timestamp $TIMESTAMP"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
