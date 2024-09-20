@@ -8,8 +8,6 @@ on:
 jobs:
   set-timestamp:
     runs-on: ubuntu-latest
-    outputs:
-      steps: ${{ steps.timestamp.outputs }}
     steps:
       - name: Set Timestamp
         id: timestamp
