@@ -8,7 +8,6 @@ on:
 jobs:
   run-k6-tests:
     runs-on: ubuntu-latest
-
     steps:
       # Checkout the repository
       - name: Checkout repository
@@ -23,27 +22,32 @@ jobs:
       # Install k6
       - name: Install k6
         run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
           sudo apt-get update
-          sudo apt-get install -y k6
+          sudo apt-get install k6
 
       # Run k6 tests and output results to a JSON file with a timestamp
       - name: Run k6 test
         run: |
-          TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-          k6 run --out json=results/result_$TIMESTAMP.json perf.js
+          mkdir -p results
+          k6 run --out json=./results/result_1.json ./test/perf.js
 
       # Update the JavaScript file with the new result file reference
       - name: Update JavaScript file
         run: |
-          echo "results.push('results/result_$TIMESTAMP.json');" >> path/to/your/jsfile.js
+          echo "./results/result_1.json"
+          echo "results.push('results/result_1.json');" >> allResults/jsFile.js
 
       # Commit and push changes
       - name: Commit and push changes
         run: |
+          echo $TIMESTAMP
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add results/result_$TIMESTAMP.json path/to/your/jsfile.js
+          git add results/result_1.json allResults/jsFile.js
           git commit -m "Add k6 test results with timestamp"
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
