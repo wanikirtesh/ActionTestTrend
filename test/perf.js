@@ -22,3 +22,10 @@ export default function () {
   check(res, { "status was 200": (r) => r.status == 200 });
   sleep(1);
 }
+
+export function handleSummary(data) {
+	const fileName = `summary/summary${__ENV.TIMESTAMP}.json`
+	return {
+	  [fileName]: JSON.stringify(data, null, 2), // Save JSON summary to a file
+	};
+  }
