@@ -24,7 +24,7 @@ export default function () {
 }
 
 export function handleSummary(data) {
-	const fileName = `summary/summary${__ENV.TIMESTAMP}.json`
+	const fileName = `results/summary${__ENV.TIMESTAMP}.json`
 	return {
 	  [fileName]: JSON.stringify(data, null, 2), // Save JSON summary to a file
 	};
