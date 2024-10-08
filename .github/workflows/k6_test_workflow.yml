@@ -48,9 +48,9 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git pull -r
           git add .
           git commit -m "Add k6 test results with timestamp $TIMESTAMP"
+          git pull -r
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
