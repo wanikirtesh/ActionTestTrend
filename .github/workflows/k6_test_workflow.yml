@@ -41,7 +41,7 @@ jobs:
       - name: Update JavaScript file
         run: |
           echo "./results/summary_$TIMESTAMP.json"
-          echo "results.push('results/summary_$TIMESTAMP.json');" >> allResults/jsFile.js
+          echo "results.push('$TIMESTAMP');" >> allResults/jsFile.js
 
       # Commit and push changes
       - name: Commit and push changes
