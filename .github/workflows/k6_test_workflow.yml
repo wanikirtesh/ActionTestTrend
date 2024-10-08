@@ -48,8 +48,7 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git pull
-          git add results/result_$TIMESTAMP.json allResults/jsFile.js results/summary_$TIMESTAMP.json
+          git add .
           git commit -m "Add k6 test results with timestamp $TIMESTAMP"
           git push
         env:
