@@ -1,5 +1,6 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
+import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
 
 // Test configuration
 export const options = {
@@ -24,8 +25,9 @@ export default function () {
 }
 
 export function handleSummary(data) {
-	const fileName = `results/summary_${__ENV.TIMESTAMP}.json`
+	const fileName = `results/summary_a.json`
 	return {
-	  [fileName]: JSON.stringify(data, null, 2), // Save JSON summary to a file
+	 // [fileName]: JSON.stringify(data, null, 2),
+    "c:/temp/summary.html": htmlReport(data), // Save JSON summary to a file
 	};
   }
