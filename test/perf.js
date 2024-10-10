@@ -1,14 +1,6 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
-
-import { Trend } from 'k6/metrics';
-
-// Define individual metrics for each URL
-let loadTimegoogle = new Trend('page_load_time_google_com');
-let loadTimeyahoo = new Trend('page_load_time_yahoo_com');
-let loadTimemsn = new Trend('page_load_time_msn_com');
-let loadTimeSite4 = new Trend('page_load_time_site4_com');
-let loadTimeSite5 = new Trend('page_load_time_site5_com');
+import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
 
 // Test configuration
 export const options = {
@@ -78,4 +70,4 @@ export function handleSummary(data) {
 	return {
 	  [fileName]: JSON.stringify(data, null, 2),
 	};
-}
+  }
