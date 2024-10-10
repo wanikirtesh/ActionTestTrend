@@ -1,6 +1,8 @@
 import http from "k6/http";
 import { check, sleep, group } from "k6";
 
+import {Trend} from "k6/metrics"
+
 let loadTimeGoogle = new Trend('load_time_google_com');
 let loadTimeMSN = new Trend('load_time_msn_com');
 let loadTimeYahoo = new Trend('load_time_yahoo_com');
