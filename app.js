@@ -1,11 +1,15 @@
 // app.js
 var app = angular.module('myApp', []);
+const url = window.location.href;
+// Create a URL object
+const urlParams = new URLSearchParams(window.location.search);
 
-app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
+app.controller('myCtrl', ['$scope', '$http','$location', function($scope, $http, $location) {
     // Initialize variables
     const vm = this;
+    $scope.tag = urlParams.get("tag")??"";
 
-    $scope.runs = results;
+    $scope.runs = results.filter(result => result.tag.toLowerCase().includes($scope.tag.toLowerCase()));
     $scope.selectedRun = null;
     $scope.isLoading = false;
     $scope.detailedMetrics = [];
