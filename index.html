@@ -3,7 +3,7 @@
 		<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script>
 			var results =[];
 			var rawData;
@@ -18,7 +18,7 @@
 			  </a>
 			</div>
 		  </nav>
-		<div class="container-fluid" ng-app="myApp" ng-controller="myCtrl">
+		<div class="container-fluid" ng-app="myApp" ng-controller="myCtrl as myCtrl">
 			<ul class="nav nav-tabs" id="myTab" role="tablist">
 				<li class="nav-item" role="presentation">
 				<button class="nav-link active" id="test-tab" data-bs-toggle="tab" data-bs-target="#test" type="button" role="tab" aria-controls="test" aria-selected="true">Single Test Analysis</button>
@@ -39,107 +39,165 @@
 							<div ng-show="isLoading" class="text-center">
 								<span class="glyphicon glyphicon-refresh glyphicon-spin"></span> Loading...
 							</div>
-							<div ng-hide="isLoading">
-								 <div class="row">
-                        <div class="col-md-6">
-                            <h3>HTTP Requests Over Time</h3>
-                            <canvas id="httpRequestsChart"></canvas>
-                            <button class="btn btn-default" ng-click="exportChart('httpRequestsChart')">Export Chart</button>
+                            <div ng-hide="isLoading">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h3>HTTP Requests Over Time</h3>
+                                        <canvas id="httpRequestsChart"></canvas>
+                                        <button class="btn btn-default" ng-click="exportChart('httpRequestsChart')">Export Chart</button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h3>HTTP Request Duration Over Time</h3>
+                                        <canvas id="httpReqDurationChart"></canvas>
+                                        <button class="btn btn-default" ng-click="exportChart('httpReqDurationChart')">Export Chart</button>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin-top: 40px;">
+                                    <div class="col-md-6">
+                                        <h3>HTTP Request Failed Rate Over Time</h3>
+                                        <canvas id="httpReqFailedChart"></canvas>
+                                        <button class="btn btn-default" ng-click="exportChart('httpReqFailedChart')">Export Chart</button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h3>Checks Pass Rate Over Time</h3>
+                                        <canvas id="checksChart"></canvas>
+                                        <button class="btn btn-default" ng-click="exportChart('checksChart')">Export Chart</button>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Charts -->
+                                <div class="row" style="margin-top: 40px;">
+                                    <div class="col-md-6">
+                                        <h3>Throughput (Requests/sec)</h3>
+                                        <canvas id="throughputChart"></canvas>
+                                        <button class="btn btn-default" ng-click="exportChart('throughputChart')">Export Chart</button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h3>Error Rate (%) Over Time</h3>
+                                        <canvas id="errorRateChart"></canvas>
+                                        <button class="btn btn-default" ng-click="exportChart('errorRateChart')">Export Chart</button>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin-top: 40px;">
+                                    <div class="col-md-6">
+                                        <h3>Active Virtual Users (VUs) Over Time</h3>
+                                        <canvas id="activeVUsChart"></canvas>
+                                        <button class="btn btn-default" ng-click="exportChart('activeVUsChart')">Export Chart</button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h3>Response Time Percentiles (p90, p95, p99)</h3>
+                                        <canvas id="responseTimePercentilesChart"></canvas>
+                                        <button class="btn btn-default" ng-click="exportChart('responseTimePercentilesChart')">Export Chart</button>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin-top: 40px;">
+                                    <div class="col-md-6">
+                                        <h3>SLA Compliance Over Time</h3>
+                                        <canvas id="slaComplianceChart"></canvas>
+                                        <button class="btn btn-default" ng-click="exportChart('slaComplianceChart')">Export Chart</button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h3>Response Time Distribution (Histogram)</h3>
+                                        <canvas id="responseTimeHistogramChart"></canvas>
+                                        <button class="btn btn-default" ng-click="exportChart('responseTimeHistogramChart')">Export Chart</button>
+                                    </div>
+                                </div>
+
+                                <!-- Detailed Tables Section -->
+                                <div class="row" style="margin-top: 40px;">
+                                    <div class="col-md-12">
+                                        <h3>Detailed Metrics</h3>
+                                        <button class="btn btn-primary" ng-click="exportTable()">Export as CSV</button>
+                                        <table class="table table-striped" style="margin-top: 10px;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Metric</th>
+                                                    <th>Value</th>
+                                                    <th>Tags</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="metric in detailedMetrics">
+                                                    <td>{{ metric.name }}</td>
+                                                    <td>{{ metric.value }}</td>
+                                                    <td>
+                                                        <span ng-repeat="(key, val) in metric.tags">
+                                                            <strong>{{ key }}:</strong> {{ val }}{{ $last ? '' : ', ' }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">History trend
+                    <h1 class="text-center">Performance Trends</h1>
+        
+                    <!-- Dropdowns to Select Metric and Statistic -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="metricSelect">Select Metric:</label>
+                            <select id="metricSelect" class="form-control" 
+                                    ng-model="myCtrl.selectedMetric" 
+                                    ng-options="metric for metric in myCtrl.metrix"
+                                    ng-change="myCtrl.updateChart()">
+                            </select>
                         </div>
-                        <div class="col-md-6">
-                            <h3>HTTP Request Duration Over Time</h3>
-                            <canvas id="httpReqDurationChart"></canvas>
-                            <button class="btn btn-default" ng-click="exportChart('httpReqDurationChart')">Export Chart</button>
+                        <div class="col-md-4">
+                            <label for="statSelect">Select Statistic:</label>
+                            <select id="statSelect" class="form-control" 
+                                    ng-model="myCtrl.selectedStat" 
+                                    ng-options="stat for stat in myCtrl.stats"
+                                    ng-change="myCtrl.updateChart()">
+                            </select>
                         </div>
                     </div>
-
-                    <div class="row" style="margin-top: 40px;">
-                        <div class="col-md-6">
-                            <h3>HTTP Request Failed Rate Over Time</h3>
-                            <canvas id="httpReqFailedChart"></canvas>
-                            <button class="btn btn-default" ng-click="exportChart('httpReqFailedChart')">Export Chart</button>
-                        </div>
-                        <div class="col-md-6">
-                            <h3>Checks Pass Rate Over Time</h3>
-                            <canvas id="checksChart"></canvas>
-                            <button class="btn btn-default" ng-click="exportChart('checksChart')">Export Chart</button>
+                    
+                    <!-- Loading Indicator -->
+                    <div class="row" ng-if="myCtrl.loading">
+                        <div class="col-md-12 text-center">
+                            <span class="glyphicon glyphicon-refresh glyphicon-spin"></span> Loading data...
                         </div>
                     </div>
-
-                    <!-- Additional Charts -->
-                    <div class="row" style="margin-top: 40px;">
-                        <div class="col-md-6">
-                            <h3>Throughput (Requests/sec)</h3>
-                            <canvas id="throughputChart"></canvas>
-                            <button class="btn btn-default" ng-click="exportChart('throughputChart')">Export Chart</button>
-                        </div>
-                        <div class="col-md-6">
-                            <h3>Error Rate (%) Over Time</h3>
-                            <canvas id="errorRateChart"></canvas>
-                            <button class="btn btn-default" ng-click="exportChart('errorRateChart')">Export Chart</button>
-                        </div>
-                    </div>
-
-                    <div class="row" style="margin-top: 40px;">
-                        <div class="col-md-6">
-                            <h3>Active Virtual Users (VUs) Over Time</h3>
-                            <canvas id="activeVUsChart"></canvas>
-                            <button class="btn btn-default" ng-click="exportChart('activeVUsChart')">Export Chart</button>
-                        </div>
-                        <div class="col-md-6">
-                            <h3>Response Time Percentiles (p90, p95, p99)</h3>
-                            <canvas id="responseTimePercentilesChart"></canvas>
-                            <button class="btn btn-default" ng-click="exportChart('responseTimePercentilesChart')">Export Chart</button>
-                        </div>
-                    </div>
-
-                    <div class="row" style="margin-top: 40px;">
-                        <div class="col-md-6">
-                            <h3>SLA Compliance Over Time</h3>
-                            <canvas id="slaComplianceChart"></canvas>
-                            <button class="btn btn-default" ng-click="exportChart('slaComplianceChart')">Export Chart</button>
-                        </div>
-                        <div class="col-md-6">
-                            <h3>Response Time Distribution (Histogram)</h3>
-                            <canvas id="responseTimeHistogramChart"></canvas>
-                            <button class="btn btn-default" ng-click="exportChart('responseTimeHistogramChart')">Export Chart</button>
-                        </div>
-                    </div>
-
-                    <!-- Detailed Tables Section -->
-                    <div class="row" style="margin-top: 40px;">
+                    
+                    <!-- Chart Container -->
+                    <div class="row" style="margin-top: 20px;" ng-if="!myCtrl.loading">
                         <div class="col-md-12">
-                            <h3>Detailed Metrics</h3>
-                            <button class="btn btn-primary" ng-click="exportTable()">Export as CSV</button>
-                            <table class="table table-striped" style="margin-top: 10px;">
+                            <div class="chart-container">
+                                <canvas id="trendChart" 
+                                        class="chart chart-line" >
+                                </canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Additional Details (Optional) -->
+                    <div class="row" style="margin-top: 40px;" ng-if="!myCtrl.loading">
+                        <div class="col-md-12">
+                            <h3>Details</h3>
+                            <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Metric</th>
-                                        <th>Value</th>
-                                        <th>Tags</th>
+                                        <th>Run Timestamp</th>
+                                        <th>{{myCtrl.selectedMetric}} - {{myCtrl.selectedStat}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr ng-repeat="metric in detailedMetrics">
-                                        <td>{{ metric.name }}</td>
-                                        <td>{{ metric.value }}</td>
-                                        <td>
-                                            <span ng-repeat="(key, val) in metric.tags">
-                                                <strong>{{ key }}:</strong> {{ val }}{{ $last ? '' : ', ' }}
-                                            </span>
-                                        </td>
+                                    <tr ng-repeat="value in myCtrl.details">
+                                        <td>{{value.timestamp}}</td>
+                                        <td>{{value.value}}</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-						
-								<!-- Add more charts as needed -->
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">History trend</div>
+                </div>
 			</div>
 		</div>
 	</body>

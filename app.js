@@ -3,39 +3,24 @@ var app = angular.module('myApp', []);
 
 app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
     // Initialize variables
+    const vm = this;
+
     $scope.runs = results;
     $scope.selectedRun = null;
     $scope.isLoading = false;
     $scope.detailedMetrics = [];
-
-    // Chart instances
     var charts = {};
-
-    /**
-     * Handle run selection
-     * @param {Object} run - Selected run object
-     */
     $scope.selectRun = function(run) {
         if ($scope.selectedRun === run) {
             return; // Run already selected
         }
         $scope.selectedRun = run;
-
-        // Load and parse NDJSON data for the selected run
         loadRunData(run);
     };
-
-    /**
-     * Load and parse NDJSON data for a specific run
-     * @param {string} filePath - Path to the NDJSON file
-     */
     function loadRunData(run) {
-        
 		$scope.isLoading = true; // Start loading
         $scope.detailedMetrics = []; // Reset detailed metrics
-        // Trigger a digest cycle to update the loading indicator
         $scope.$applyAsync();
-
 		$.ajax({
 			url: `results/result_${run}.json`,
 			method: 'GET',
@@ -44,24 +29,16 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
 				var parsedData = parseNDJSON(data);
 				processData(parsedData);
 				$scope.isLoading = false; // End loading
-				// Trigger a digest cycle to update the UI
 				$scope.$apply();
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
 				console.error('Error loading run data:', textStatus, errorThrown);
 				$scope.isLoading = false; // End loading even on error
-				// Trigger a digest cycle to update the UI
 				$scope.$apply();
 			}
 		});
 		
     }
-
-    /**
-     * Parses NDJSON string into an array of JSON objects
-     * @param {string} ndjson - Newline-delimited JSON string
-     * @returns {Array} Array of JSON objects
-     */
     function parseNDJSON(ndjson) {
         var lines = ndjson.trim().split('\n');
         var jsonObjects = lines.map(function(line) {
@@ -75,14 +52,8 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         return jsonObjects;
     }
 
-    /**
-     * Processes parsed NDJSON data and updates charts
-     * @param {Array} data - Array of JSON objects from NDJSON
-     */
     function processData(data) {
-        // Organize metrics by name
         var metrics = {};
-
         data.forEach(function(item) {
             if (item.type === 'Metric') {
                 var metricName = item.data.name;
@@ -107,24 +78,15 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
                 });
             }
         });
-
-        // Extract detailed metrics for the table
         extractDetailedMetrics(metrics);
-
-        // Plot charts based on available metrics
         plotCharts(metrics);
     }
 
-    /**
-     * Extracts detailed metrics for the metrics table
-     * @param {Object} metrics - Organized metrics object
-     */
     function extractDetailedMetrics(metrics) {
         $scope.detailedMetrics = [];
         for (var metricName in metrics) {
             if (metrics.hasOwnProperty(metricName)) {
                 var metric = metrics[metricName];
-                // Extract the latest value based on time
                 var latestPoint = metric.dataPoints.reduce(function(prev, current) {
                     return (prev.time > current.time) ? prev : current;
                 }, metric.dataPoints[0]);
@@ -138,46 +100,35 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         }
     }
 
-    /**
-     * Plots all relevant charts based on the available metrics
-     * @param {Object} metrics - Organized metrics object
-     */
     function plotCharts(metrics) {
         // Example Chart: HTTP Requests Over Time
         if (metrics['http_reqs']) {
             plotHttpRequestsChart(metrics['http_reqs'].dataPoints);
         }
-
         // Example Chart: HTTP Request Duration Over Time
         if (metrics['http_req_duration']) {
             plotHttpReqDurationChart(metrics['http_req_duration'].dataPoints);
         }
-
         // Example Chart: HTTP Request Failed Rate Over Time
         if (metrics['http_req_failed']) {
             plotHttpReqFailedChart(metrics['http_req_failed'].dataPoints);
         }
-
         // Example Chart: Checks Pass Rate Over Time
         if (metrics['checks']) {
             plotChecksChart(metrics['checks'].dataPoints);
         }
-
         // Example Chart: Throughput (Requests/sec)
         if (metrics['http_reqs']) {
             plotThroughputChart(metrics['http_reqs'].dataPoints);
         }
-
         // Example Chart: Error Rate (%) Over Time
         if (metrics['http_req_failed']) {
             plotErrorRateChart(metrics['http_req_failed'].dataPoints);
         }
-
         // Example Chart: Active Virtual Users (VUs) Over Time
         if (metrics['vus']) {
             plotActiveVUsChart(metrics['vus'].dataPoints);
         }
-
         // Example Chart: Response Time Percentiles (p90, p95, p99)
         if (metrics['http_req_duration_p90'] && metrics['http_req_duration_p95'] && metrics['http_req_duration_p99']) {
             plotResponseTimePercentilesChart({
@@ -186,30 +137,20 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
                 p99: metrics['http_req_duration_p99'].dataPoints
             });
         }
-
         // Example Chart: SLA Compliance Over Time
         if (metrics['http_req_duration']) { // Assuming SLA is based on response time
             plotSLAComplianceChart(metrics['http_req_duration'].dataPoints, 1000); // Example SLA: 1000 ms
         }
-
         // Example Chart: Response Time Distribution (Histogram)
         if (metrics['http_req_duration']) {
             plotResponseTimeHistogramChart(metrics['http_req_duration'].dataPoints);
         }
-
-        // Add more charts as needed based on available metrics
     }
 
-    /**
-     * Plot HTTP Requests Over Time Chart
-     * @param {Array} dataPoints - Array of HTTP request data points
-     */
     function plotHttpRequestsChart(dataPoints) {
         var labels = dataPoints.map(function(point) { return point.time.toLocaleTimeString(); });
         var data = dataPoints.map(function(point) { return point.value; });
-
         var ctx = document.getElementById('httpRequestsChart').getContext('2d');
-
         if (charts['httpRequestsChart']) {
             charts['httpRequestsChart'].destroy();
         }
@@ -243,10 +184,6 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         });
     }
 
-    /**
-     * Plot HTTP Request Duration Over Time Chart
-     * @param {Array} dataPoints - Array of HTTP request duration data points
-     */
     function plotHttpReqDurationChart(dataPoints) {
         var labels = dataPoints.map(function(point) { return point.time.toLocaleTimeString(); });
         var data = dataPoints.map(function(point) { return point.value; });
@@ -286,20 +223,13 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         });
     }
 
-    /**
-     * Plot HTTP Request Failed Rate Over Time Chart
-     * @param {Array} dataPoints - Array of HTTP request failed rate data points
-     */
     function plotHttpReqFailedChart(dataPoints) {
         var labels = dataPoints.map(function(point) { return point.time.toLocaleTimeString(); });
         var data = dataPoints.map(function(point) { return (point.value * 100).toFixed(2); }); // Convert rate to percentage
-
         var ctx = document.getElementById('httpReqFailedChart').getContext('2d');
-
         if (charts['httpReqFailedChart']) {
             charts['httpReqFailedChart'].destroy();
         }
-
         charts['httpReqFailedChart'] = new Chart(ctx, {
             type: 'line',
             data: {
@@ -330,10 +260,6 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         });
     }
 
-    /**
-     * Plot Checks Pass Rate Over Time Chart
-     * @param {Array} dataPoints - Array of checks data points
-     */
     function plotChecksChart(dataPoints) {
         var labels = dataPoints.map(function(point) { return point.time.toLocaleTimeString(); });
         var data = dataPoints.map(function(point) { return (point.value * 100).toFixed(2); }); // Convert rate to percentage
@@ -374,14 +300,9 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         });
     }
 
-    /**
-     * Plot Throughput (Requests/sec) Chart
-     * @param {Array} dataPoints - Array of HTTP requests data points
-     */
     function plotThroughputChart(dataPoints) {
         var labels = dataPoints.map(function(point) { return point.time.toLocaleTimeString(); });
         var data = dataPoints.map(function(point) { return point.value; });
-
         var ctx = document.getElementById('throughputChart').getContext('2d');
 
         if (charts['throughputChart']) {
@@ -417,10 +338,6 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         });
     }
 
-    /**
-     * Plot Error Rate (%) Over Time Chart
-     * @param {Array} dataPoints - Array of error rate data points
-     */
     function plotErrorRateChart(dataPoints) {
         var labels = dataPoints.map(function(point) { return point.time.toLocaleTimeString(); });
         var data = dataPoints.map(function(point) { return (point.value * 100).toFixed(2); }); // Convert rate to percentage
@@ -461,10 +378,6 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         });
     }
 
-    /**
-     * Plot Active Virtual Users (VUs) Over Time Chart
-     * @param {Array} dataPoints - Array of VUs data points
-     */
     function plotActiveVUsChart(dataPoints) {
         var labels = dataPoints.map(function(point) { return point.time.toLocaleTimeString(); });
         var data = dataPoints.map(function(point) { return point.value; });
@@ -504,10 +417,6 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         });
     }
 
-    /**
-     * Plot Response Time Percentiles (p90, p95, p99) Chart
-     * @param {Object} percentilesData - Object containing p90, p95, p99 data points
-     */
     function plotResponseTimePercentilesChart(percentilesData) {
         var labels = percentilesData.p90.map(function(point) { return point.time.toLocaleTimeString(); });
         var p90 = percentilesData.p90.map(function(point) { return point.value; });
@@ -563,11 +472,6 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         });
     }
 
-    /**
-     * Plot SLA Compliance Over Time Chart
-     * @param {Array} dataPoints - Array of HTTP request duration data points
-     * @param {Number} slaThreshold - SLA threshold in ms
-     */
     function plotSLAComplianceChart(dataPoints, slaThreshold) {
         // Calculate SLA compliance (percentage of requests under the threshold)
         var labels = [];
@@ -631,10 +535,6 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         });
     }
 
-    /**
-     * Plot Response Time Histogram Chart
-     * @param {Array} dataPoints - Array of HTTP request duration data points
-     */
     function plotResponseTimeHistogramChart(dataPoints) {
         // Define bins
         var bins = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000];
@@ -690,16 +590,6 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         });
     }
 
-    /**
-     * Plot Custom Metrics (Extend as needed)
-     * @param {Object} percentilesData - Object containing p90, p95, p99 data points
-     */
-    // Implement additional plotting functions as needed for other metrics
-
-    /**
-     * Export a specific chart as PNG
-     * @param {string} chartId - ID of the canvas element
-     */
     $scope.exportChart = function(chartId) {
         var canvas = document.getElementById(chartId);
         if (!canvas) {
@@ -715,9 +605,6 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         document.body.removeChild(link);
     };
 
-    /**
-     * Export detailed metrics table as CSV
-     */
     $scope.exportTable = function() {
         if (!$scope.selectedRun) {
             alert('No run selected!');
@@ -740,6 +627,161 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         document.body.removeChild(link);
     };
 
-    // Initialize by loading all runs
-    //loadAllRuns();
+    vm.allData = [];
+    vm.metrix = [];
+    vm.stats = [];
+    vm.selectedMetric = '';
+    vm.selectedStat = '';
+    vm.chartData = [];
+    vm.chartLabels = [];
+    vm.chartSeries = [];
+    vm.chartOptions = {};
+    vm.details = [];
+    vm.chart = null;
+
+    vm.loadAllData = function () {
+        const promises = $scope.runs.map(file => $http.get(`results/summary_${file}.json`).then(response => {
+            // Attach filename to data for timestamp extraction
+            response.data.options = response.data.options || {};
+            response.data.options.filename = file;
+            return response.data;
+        }).catch(error => {
+            console.error('Error loading file:', file, error);
+            return null; // Return null for failed requests
+        }));
+
+        Promise.all(promises).then(results => {
+            // Filter out any failed requests
+            vm.allData = results.filter(data => data !== null);
+            vm.processMetrics();
+            vm.loading = false;
+            $scope.$apply(); // Update the scope
+        });
+    };
+    vm.processMetrics = function () {
+        if (vm.allData.length === 0) return;
+        // Assuming all JSON files have the same structure
+        const sampleMetrics = vm.allData[0].metrics;
+        vm.metrix = Object.keys(sampleMetrics);
+        // Initialize selectedMetric and selectedStat
+        vm.selectedMetric = vm.metrix[0];
+        vm.stats = Object.keys(vm.allData[0].metrics[vm.selectedMetric].values);
+        vm.selectedStat = vm.stats[0];
+        vm.initializeChart();
+        // Initial chart rendering
+       // vm.updateChartData();
+    };
+
+    vm.initializeChart = function () {
+       // const ctx = document.getElementById('trendChart').getContext('2d');
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        vm.chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '',
+                    data: [],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio:3,
+                scales: {
+                    x: {
+                        type: 'category',
+                        title: {
+                            display: true,
+                            text: 'Timestamp'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                }
+            }
+
+        });
+
+        vm.updateChartData();
+    };
+
+    vm.updateChart = function () {
+        vm.updateChartData();
+    };
+
+    vm.updateChartData = function () {
+        if (!vm.selectedMetric || !vm.selectedStat) return;
+        let dataPoints = [];
+        let details = [];
+
+        vm.allData.forEach(entry => {
+            // Extract timestamp from filename
+            const filename = entry.options.filename || 'summary_??????????????.json';
+            const timestamp = vm.extractTimestampFromFilename(filename);
+
+            const metricValues = entry.metrics[vm.selectedMetric].values;
+            const value = metricValues[vm.selectedStat];
+            dataPoints.push({
+                x: timestamp,
+                y: value
+            });
+
+            details.push({
+                timestamp: timestamp,
+                value: value
+            });
+        });
+
+        dataPoints.sort((a, b) => new Date(a.x) - new Date(b.x));
+        details.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+        vm.chartSeries = [vm.selectedStat];
+
+        vm.chart.data.labels = dataPoints.map(dp => dp.x);
+        vm.chart.data.datasets[0].label = `${vm.selectedMetric} - ${vm.selectedStat}`;
+        vm.chart.data.datasets[0].data = dataPoints.map(dp => dp.y);
+        vm.chart.update();
+        vm.details = details;
+    };
+
+    // Function to extract and format timestamp from filename
+    vm.extractTimestampFromFilename = function (ts) {
+            return `${ts.substring(0,4)}-${ts.substring(4,6)}-${ts.substring(6,8)} ` +
+                              `${ts.substring(8,10)}:${ts.substring(10,12)}:${ts.substring(12,14)}`;
+            
+    };
+
+    $scope.$watch(function () {
+        return vm.selectedMetric;
+    }, function (newVal, oldVal) {
+        if (newVal !== oldVal) {
+            if (vm.allData.length > 0 && vm.allData[0].metrics[newVal]) {
+                vm.stats = Object.keys(vm.allData[0].metrics[newVal].values);
+                vm.selectedStat = vm.stats[0];
+                vm.updateChartData();
+            }
+        }
+    });
+
+    vm.loadAllData();
+
 }]);
