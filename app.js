@@ -542,10 +542,8 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         for (var i = 0; i < bins.length -1; i++) {
             binLabels.push(bins[i] + '-' + bins[i+1] + 'ms');
         }
-
         // Initialize counts
         var counts = Array(binLabels.length).fill(0);
-
         // Populate counts
         dataPoints.forEach(function(point) {
             var loadTime = point.value;
@@ -600,7 +598,6 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         link.href = canvas.toDataURL("image/png");
         link.download = chartId + '.png';
         document.body.appendChild(link); // Required for Firefox
-
         link.click(); // This will download the data
         document.body.removeChild(link);
     };
@@ -662,18 +659,15 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         if (vm.allData.length === 0) return;
         // Assuming all JSON files have the same structure
         const sampleMetrics = vm.allData[0].metrics;
-        vm.metrix = Object.keys(sampleMetrics);
+        vm.metrix = Object.keys(sampleMetrics).sort();
         // Initialize selectedMetric and selectedStat
         vm.selectedMetric = vm.metrix[0];
         vm.stats = Object.keys(vm.allData[0].metrics[vm.selectedMetric].values);
         vm.selectedStat = vm.stats[0];
         vm.initializeChart();
-        // Initial chart rendering
-       // vm.updateChartData();
     };
 
     vm.initializeChart = function () {
-       // const ctx = document.getElementById('trendChart').getContext('2d');
         const ctx = document.getElementById('trendChart').getContext('2d');
         vm.chart = new Chart(ctx, {
             type: 'line',
