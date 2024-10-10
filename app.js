@@ -662,7 +662,7 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         vm.metrix = Object.keys(sampleMetrics).sort();
         // Initialize selectedMetric and selectedStat
         vm.selectedMetric = vm.metrix[0];
-        vm.stats = Object.keys(vm.allData[0].metrics[vm.selectedMetric].values);
+        vm.stats = Object.keys(vm.allData[0].metrics[vm.selectedMetric].values).sort();
         vm.selectedStat = vm.stats[0];
         vm.initializeChart();
     };
