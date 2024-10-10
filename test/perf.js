@@ -1,6 +1,13 @@
 import http from "k6/http";
 import { check, sleep, group } from "k6";
 
+let loadTimeGoogle = new Trend('load_time_google_com');
+let loadTimeMSN = new Trend('load_time_msn_com');
+let loadTimeYahoo = new Trend('load_time_yahoo_com');
+let loadTimeSite4 = new Trend('load_time_site4_com');
+let loadTimeSite5 = new Trend('load_time_site5_com');
+
+
 // Test configuration
 export const options = {
   discardResponseBodies: true,
@@ -22,7 +29,7 @@ export default function () {
     check(res, {
       'status was 200': (r) => r.status === 200,
     });
-    loadTimegoogle.add(res.timings.duration);
+    loadTimeGoogle.add(res.timings.duration);
     console.log(`Page load time for google.com: ${res.timings.duration} ms`);
   });
 
@@ -31,7 +38,7 @@ export default function () {
     check(res, {
       'status was 200': (r) => r.status === 200,
     });
-    loadTimeyahoo.add(res.timings.duration);
+    loadTimeYahoo.add(res.timings.duration);
     console.log(`Page load time for yahoo.com: ${res.timings.duration} ms`);
   });
 
@@ -40,7 +47,7 @@ export default function () {
     check(res, {
       'status was 200': (r) => r.status === 200,
     });
-    loadTimemsn.add(res.timings.duration);
+    loadTimeMSN.add(res.timings.duration);
     console.log(`Page load time for msn.com: ${res.timings.duration} ms`);
   });
 
