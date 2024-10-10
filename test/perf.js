@@ -9,7 +9,7 @@ export const options = {
       executor: 'per-vu-iterations',
       vus: __ENV.VU,
       iterations: 10,
-      maxDuration: __ENV.DURATION+'s',
+      maxDuration: __ENV.DURATION+'',
     },
   },
 };
