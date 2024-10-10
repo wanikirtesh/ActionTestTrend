@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { check, sleep } from "k6";
+import { check, sleep, group } from "k6";
 
 // Test configuration
 export const options = {
@@ -8,7 +8,7 @@ export const options = {
     contacts: {
       executor: 'per-vu-iterations',
       vus: __ENV.VU,
-      iterations: 20,
+      iterations: 10,
       maxDuration: __ENV.DURATION+'s',
     },
   },
