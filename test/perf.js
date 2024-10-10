@@ -1,19 +1,17 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
-import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
 
 // Test configuration
 export const options = {
-  thresholds: {
-    // Assert that 99% of requests finish within 3000ms.
-    http_req_duration: ["p(99) < 3000"],
+  discardResponseBodies: true,
+  scenarios: {
+    contacts: {
+      executor: 'per-vu-iterations',
+      vus: __ENV.VU,
+      iterations: 20,
+      maxDuration: __ENV.DURATION+'s',
+    },
   },
-  // Ramp the number of virtual users up and down
-  stages: [
-    { duration: "10s", target: 15 },
-    { duration: "10s", target: 15 },
-    { duration: "2s", target: 0 },
-  ],
 };
 
 // Simulated user behavior

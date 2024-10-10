@@ -3,15 +3,15 @@ name: K6 Manual Test Workflow
 on:
   workflow_dispatch:
     inputs:
-      test_url:
+      URL:
         description: 'URL to test'
         required: true
         default: 'https://example.com'
-      vus:
+      VU:
         description: 'Number of virtual users'
         required: true
         default: '10'
-      duration:
+      DURATION:
         description: 'Test duration (e.g., 30s, 1m)'
         required: true
         default: '1m'
@@ -45,7 +45,10 @@ jobs:
       - name: Run k6 test
         run: |
           mkdir -p results
-          k6 run --out json=./results/result_$TIMESTAMP.json ./test/perf.js
+          k6 run --out json=./results/result_$TIMESTAMP.json ./test/perf.js \
+             --env VU=${{github.event.inputs.VU}} \
+             --env URL=${{github.event.inputs.URL}} \
+             --env DURATION=${{github.event.inputs.DURATION}}
   
       # Update the JavaScript file with the new result file reference
       - name: Update JavaScript file
