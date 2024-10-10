@@ -768,7 +768,7 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
     }, function (newVal, oldVal) {
         if (newVal !== oldVal) {
             if (vm.allData.length > 0 && vm.allData[0].metrics[newVal]) {
-                vm.stats = Object.keys(vm.allData[0].metrics[newVal].values);
+                vm.stats = Object.keys(vm.allData[0].metrics[newVal].values).sort();
                 vm.selectedStat = vm.stats[0];
                 vm.updateChartData();
             }

@@ -14,7 +14,7 @@ on:
       DURATION:
         description: 'Test duration (e.g., 30s, 1m)'
         required: true
-        default: '1m'
+        default: '30s'
 
 jobs:
   run-k6-tests:
