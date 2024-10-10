@@ -690,7 +690,6 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
                 aspectRatio:3,
                 scales: {
                     x: {
