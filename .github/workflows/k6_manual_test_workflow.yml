@@ -15,6 +15,10 @@ on:
         description: 'Test duration (e.g., 30s, 1m)'
         required: true
         default: '30s'
+      TAG:
+        description: 'Tag for the run'
+        required: true
+        default: 'Regression'
 
 jobs:
   run-k6-tests:
@@ -54,7 +58,7 @@ jobs:
       - name: Update JavaScript file
         run: |
           echo "./results/summary_$TIMESTAMP.json"
-          echo "results.push('$TIMESTAMP');" >> allResults/jsFile.js
+          echo "results.push({'timestamp':'$TIMESTAMP','tag':'${{github.event.inputs.TAG}}');" >> allResults/jsFile.js
   
       # Commit and push changes
       - name: Commit and push changes

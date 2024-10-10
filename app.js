@@ -22,7 +22,7 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
         $scope.detailedMetrics = []; // Reset detailed metrics
         $scope.$applyAsync();
 		$.ajax({
-			url: `results/result_${run}.json`,
+			url: `results/result_${run.timestamp}.json`,
 			method: 'GET',
 			dataType: 'text', // Fetch as plain text to handle NDJSON
 			success: function(data) {
@@ -637,13 +637,13 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
     vm.chart = null;
 
     vm.loadAllData = function () {
-        const promises = $scope.runs.map(file => $http.get(`results/summary_${file}.json`).then(response => {
+        const promises = $scope.runs.map(file => $http.get(`results/summary_${file.timestamp}.json`).then(response => {
             // Attach filename to data for timestamp extraction
             response.data.options = response.data.options || {};
-            response.data.options.filename = file;
+            response.data.options.filename = file.timestamp;
             return response.data;
         }).catch(error => {
-            console.error('Error loading file:', file, error);
+            console.error('Error loading file:', file.timestamp, error);
             return null; // Return null for failed requests
         }));
 
@@ -730,16 +730,16 @@ app.controller('myCtrl', ['$scope', '$http', function($scope, $http) {
             // Extract timestamp from filename
             const filename = entry.options.filename || 'summary_??????????????.json';
             const timestamp = vm.extractTimestampFromFilename(filename);
-
+            const tag = $scope.runs.filter(run => run.timestamp == filename)[0].tag;
             const metricValues = entry.metrics[vm.selectedMetric].values;
             const value = metricValues[vm.selectedStat];
             dataPoints.push({
-                x: timestamp,
+                x: timestamp + ' (' + tag + ')',
                 y: value
             });
 
             details.push({
-                timestamp: timestamp,
+                timestamp: timestamp + ' (' + tag + ')',
                 value: value
             });
         });
