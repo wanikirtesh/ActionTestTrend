@@ -23,17 +23,6 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
-
-    services:
-      datadog:
-        image: datadog/agent:latest
-        env:
-          DD_API_KEY: ${{secrets.DATADOG_API_KEY}}
-          DD_APM_ENABLED: "true"
-          DD_LOGS_ENABLED: "true"
-        options: >-
-          --network my_network
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -54,6 +43,14 @@ jobs:
         run: npm run build  # Adjust this command based on your build setup
       - name: Create Docker Network
         run: docker network create my_network
+      - name: Start Datadog Agent
+        run: |
+          docker run -d --name datadog-agent \
+          --network my_network \
+          -e DD_API_KEY=${{ secrets.DATADOG_API_KEY }} \
+          -e DD_APM_ENABLED=true \
+          -e DD_LOGS_ENABLED=true \
+          datadog/agent:latest
       - name: Run K6 tests with Datadog Agent
         run: |
           docker run --network my_network -v ${{ github.workspace }}:/test loadimpact/k6 run /test/perf.js --out statsd --out  json=./results/result_$TIMESTAMP.json 
