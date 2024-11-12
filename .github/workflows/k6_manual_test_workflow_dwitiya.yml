@@ -48,7 +48,7 @@ jobs:
           datadog/agent:latest
       - name: Run K6 tests with Datadog Agent
         run: |
-          docker run --network my_network -v ${{ github.workspace }}:/test loadimpact/k6 run /test/perf.js --out statsd --out  json=./results/result_$TIMESTAMP.json 
+          docker run --network my_network -v ${{ github.workspace }}:/test grafana/k6 run /test/test/perf.js --out statsd --out  json=/test/results/result_$TIMESTAMP.json 
           --env VU=${{github.event.inputs.VU}} \
           --env URL=${{github.event.inputs.URL}} \
           --env DURATION=${{github.event.inputs.DURATION}}
