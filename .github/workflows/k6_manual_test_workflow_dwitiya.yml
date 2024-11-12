@@ -55,7 +55,6 @@ jobs:
 
       - name: Commit and push results
         run: |
-          timestamp=$(date +%Y%m%d%H%M%S)
           echo "K6 test results saved at results_$timestamp.json"
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
