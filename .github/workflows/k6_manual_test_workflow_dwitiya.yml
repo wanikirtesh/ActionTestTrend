@@ -1,4 +1,4 @@
-name: K6 Manual Test Workflow
+name: Run with DD Agent
 
 on:
   workflow_dispatch:
@@ -21,54 +21,56 @@ on:
         default: 'Regression'
 
 jobs:
-  run-k6-tests:
+  lint-and-test:
     runs-on: ubuntu-latest
+
+    services:
+      datadog:
+        image: datadog/agent:latest
+        env:
+          DD_API_KEY: ${{secrets.DATADOG_API_KEY}}
+          DD_APM_ENABLED: "true"
+          DD_LOGS_ENABLED: "true"
+        options: >-
+          --network host
+          --privileged
+
     steps:
-      # Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
-  
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Set TimeStamp
         run: echo "TIMESTAMP=$(date +"%Y%m%d%H%M%S")" >> $GITHUB_ENV
-      # Set up Node.js environment (if required by your JavaScript file)
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
-          node-version: '20'  # Adjust the Node.js version as needed
-  
-      # Install k6
-      - name: Install k6
+          node-version: '14'  # Specify your Node.js version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run linter
+        run: npm run lint  # Adjust this command based on your linter setup
+
+      - name: Compile TypeScript
+        run: npm run build  # Adjust this command based on your build setup
+
+      - name: Run K6 tests with Datadog Agent
         run: |
-          sudo gpg -k
-          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
-          sudo apt-get update
-          sudo apt-get install k6
-  
-      # Run k6 tests and output results to a JSON file with a timestamp
-      - name: Run k6 test
+          docker run --network host -v ${{ github.workspace }}:/test loadimpact/k6 run /test/perf.js --out statsd --out  json=./results/result_$TIMESTAMP.json 
+          --env VU=${{github.event.inputs.VU}} \
+          --env URL=${{github.event.inputs.URL}} \
+          --env DURATION=${{github.event.inputs.DURATION}}
+          # Replace 'your_k6_script.js' with the path to your K6 script
+
+      - name: Commit and push results
         run: |
-          mkdir -p results
-          k6 run --out json=./results/result_$TIMESTAMP.json ./test/perf.js \
-             --env VU=${{github.event.inputs.VU}} \
-             --env URL=${{github.event.inputs.URL}} \
-             --env DURATION=${{github.event.inputs.DURATION}}
-  
-      # Update the JavaScript file with the new result file reference
-      - name: Update JavaScript file
-        run: |
-          echo "./results/summary_$TIMESTAMP.json"
-          echo "results.push({'timestamp':'$TIMESTAMP','tag':'${{github.event.inputs.TAG}}'});" >> allResults/jsFile.js
-  
-      # Commit and push changes
-      - name: Commit and push changes
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add .
-          git commit -m "Add k6 test results with timestamp $TIMESTAMP"
+          timestamp=$(date +%Y%m%d%H%M%S)
+          echo "K6 test results saved at results_$timestamp.json"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ./results/result_$TIMESTAMP.json
+          git commit -m "Add K6 results for $timestamp"
           git pull -r
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-  
+            GITHUB_TOKEN: ${{ secrets.TOKEN }}
