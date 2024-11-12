@@ -32,8 +32,7 @@ jobs:
           DD_APM_ENABLED: "true"
           DD_LOGS_ENABLED: "true"
         options: >-
-          --network host
-          --privileged
+          --network my_network
 
     steps:
       - name: Checkout code
@@ -53,10 +52,11 @@ jobs:
 
       - name: Compile TypeScript
         run: npm run build  # Adjust this command based on your build setup
-
+      - name: Create Docker Network
+        run: docker network create my_network
       - name: Run K6 tests with Datadog Agent
         run: |
-          docker run --network host -v ${{ github.workspace }}:/test loadimpact/k6 run /test/perf.js --out statsd --out  json=./results/result_$TIMESTAMP.json 
+          docker run --network my_network -v ${{ github.workspace }}:/test loadimpact/k6 run /test/perf.js --out statsd --out  json=./results/result_$TIMESTAMP.json 
           --env VU=${{github.event.inputs.VU}} \
           --env URL=${{github.event.inputs.URL}} \
           --env DURATION=${{github.event.inputs.DURATION}}
