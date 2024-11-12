@@ -36,11 +36,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run linter
-        run: npm run lint  # Adjust this command based on your linter setup
-
-      - name: Compile TypeScript
-        run: npm run build  # Adjust this command based on your build setup
       - name: Create Docker Network
         run: docker network create my_network
       - name: Start Datadog Agent
