@@ -52,7 +52,6 @@ jobs:
           --env VU=${{github.event.inputs.VU}} \
           --env URL=${{github.event.inputs.URL}} \
           --env DURATION=${{github.event.inputs.DURATION}}
-          # Replace 'your_k6_script.js' with the path to your K6 script
 
       - name: Commit and push results
         run: |
@@ -61,7 +60,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add ./results/result_$TIMESTAMP.json
-          git commit -m "Add K6 results for $timestamp"
+          git commit -m "Add K6 results for $TIMESTAMP"
           git pull -r
           git push
         env:
