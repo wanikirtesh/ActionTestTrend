@@ -16,9 +16,9 @@ export const options = {
   scenarios: {
     contacts: {
       executor: 'per-vu-iterations',
-      vus: __ENV.VU,
+      vus: 1,
       iterations: 10,
-      maxDuration: __ENV.DURATION+'',
+      maxDuration: '30s',
     },
   },
 };
