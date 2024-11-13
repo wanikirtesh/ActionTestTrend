@@ -25,7 +25,7 @@ export const options = {
 
 // Simulated user behavior
 export default function () {
-console.log(`Running test with duration: ${__ENV.DURATION}`);
+console.log(`Running test with duration: ${__ENV.TIMESTAMP}`);
 
   group('Testing https://google.com', function () {
     let res = http.get('https://google.com');
