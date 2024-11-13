@@ -57,7 +57,7 @@ jobs:
 
       - name: Commit and push results
         run: |
-          echo "K6 test results saved at results_$timestamp.json"
+          echo "K6 test results saved at results_$TIMESTAMP.json"
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add results/summary_$TIMESTAMP.json
