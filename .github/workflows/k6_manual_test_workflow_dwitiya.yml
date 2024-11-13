@@ -53,7 +53,7 @@ jobs:
           --env VU=${{github.event.inputs.VU}} \
           --env URL=${{github.event.inputs.URL}} \
           --env DURATION=${{github.event.inputs.DURATION}} \
-          --env TIMESTAMP=$TIMESTAMP"
+          --env TIMESTAMP=$TIMESTAMP
 
       - name: Commit and push results
         run: |
