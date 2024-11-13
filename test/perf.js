@@ -74,7 +74,7 @@ console.log(`Running test with duration: ${__ENV.DURATION}`);
 }
 
 export function handleSummary(data) {
-	const fileName = `results/summary_${__ENV.TIMESTAMP}.json`
+	const fileName = `/test/results/summary_${__ENV.TIMESTAMP}.json`
 	return {
 	  [fileName]: JSON.stringify(data, null, 2),
 	};
