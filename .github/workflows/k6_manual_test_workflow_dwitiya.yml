@@ -48,7 +48,7 @@ jobs:
           datadog/agent:latest
       - name: Run K6 tests with Datadog Agent
         run: |
-          docker run --user root --network my_network -v ${{ github.workspace }}:/test loadimpact/k6:0.30.0 \
+          docker run --user root --network my_network -p 8125:8125 -v "${{ github.workspace }}:/test" loadimpact/k6:0.30.0 \
           run /test/test/perf.js --out datadog \
           --env VU=${{github.event.inputs.VU}} \
           --env URL=${{github.event.inputs.URL}} \
