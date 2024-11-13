@@ -58,7 +58,7 @@ jobs:
           echo "K6 test results saved at results_$timestamp.json"
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add ./results/result_$TIMESTAMP.json
+          git add ${{ github.workspace }}/results/result_$TIMESTAMP.json
           git commit -m "Add K6 results for $TIMESTAMP"
           git pull -r
           git push
