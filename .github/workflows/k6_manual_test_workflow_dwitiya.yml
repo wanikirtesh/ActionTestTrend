@@ -59,13 +59,15 @@ jobs:
           --env URL=${{github.event.inputs.URL}} \
           --env DURATION=${{github.event.inputs.DURATION}} \
           --env TIMESTAMP=$TIMESTAMP
-
+      - name: Update JavaScript file
+        run: |
+          echo "results.push({'timestamp':'$TIMESTAMP','tag':'${{github.event.inputs.TAG}}'});" >> allResults/jsFile.js
       - name: Commit and push results
         run: |
           echo "K6 test results saved at results_$TIMESTAMP.json"
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add results/*
+          git add results/* allResults/*
           git commit -m "Add K6 results for $TIMESTAMP"
           git pull -r
           git push
