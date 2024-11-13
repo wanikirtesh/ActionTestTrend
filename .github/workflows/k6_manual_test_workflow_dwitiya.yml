@@ -50,6 +50,7 @@ jobs:
         run: |
           docker run --user root --network my_network -v "${{ github.workspace }}:/test" loadimpact/k6:0.30.0 \
           run /test/test/perf.js --out datadog \
+          --env DATADOG_AGENT_ADDR="datadog-agent:8125" \
           --env VU=${{github.event.inputs.VU}} \
           --env URL=${{github.event.inputs.URL}} \
           --env DURATION=${{github.event.inputs.DURATION}} \
