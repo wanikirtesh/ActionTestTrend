@@ -46,6 +46,8 @@ jobs:
           -e DD_APM_ENABLED=true \
           -e DD_LOGS_ENABLED=true \
           datadog/agent:latest
+      - name: Wait for Datadog Agent to initialize
+        run: sleep 10
       - name: Run K6 tests with Datadog Agent
         run: |
           docker run --user root --network my_network -v "${{ github.workspace }}:/test" loadimpact/k6:0.30.0 \
