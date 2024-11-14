@@ -45,7 +45,7 @@ jobs:
           -e DD_SITE="datadoghq.com" \
           -e DD_DOGSTATSD_NON_LOCAL_TRAFFIC=1 \
           -e DD_LOGS_ENABLED=true \
-          datadog/agent:latest
+          datadog/agent:7.39.2
       - name: Wait for Datadog Agent to initialize
         run: sleep 10
       - name: Verify Datadog Agent Port Binding
