@@ -49,6 +49,10 @@ jobs:
           datadog/agent:latest
       - name: Wait for Datadog Agent to initialize
         run: sleep 10
+      - name: Test Datadog Agent Connection
+        run: |
+          docker run --rm --network my_network busybox sh -c \
+          "nc -zv datadog-agent 8125 || echo 'Connection to datadog-agent:8125 failed'"
       - name: Run K6 tests with Datadog Agent
         run: |
           docker run --user root --network my_network -v "${{ github.workspace }}:/test" loadimpact/k6:0.30.0 \
