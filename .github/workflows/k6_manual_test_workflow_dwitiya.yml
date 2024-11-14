@@ -49,6 +49,8 @@ jobs:
           datadog/agent:latest
       - name: Wait for Datadog Agent to initialize
         run: sleep 10
+      - name: Verify Datadog Agent Port Binding
+        run: docker port datadog-agent
       - name: Test Datadog Agent Connection
         run: |
           docker run --rm --network my_network busybox sh -c \
