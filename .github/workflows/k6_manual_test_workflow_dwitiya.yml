@@ -36,12 +36,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Create Docker Network
-        run: docker network create my_network
+
       - name: Start Datadog Agent
         run: |
           docker run -d --name datadog-agent -p 8125:8125/udp \
-          --network my_network --network-alias datadog-agent \
+          --network host --network-alias datadog-agent \
           -e DD_API_KEY=${{ secrets.DATADOG_API_KEY }} \
           -e DD_SITE="datadoghq.com" \
           -e DD_DOGSTATSD_NON_LOCAL_TRAFFIC=1 \
@@ -57,7 +56,7 @@ jobs:
           "nc -zv datadog-agent 8125 || echo 'Connection to datadog-agent:8125 failed'"
       - name: Run K6 tests with Datadog Agent
         run: |
-          docker run --user root --network my_network -v "${{ github.workspace }}:/test" loadimpact/k6:0.30.0 \
+          docker run --user root --network host -v "${{ github.workspace }}:/test" loadimpact/k6:0.30.0 \
           run /test/test/perf.js --out datadog --out json=/test/results/result_$TIMESTAMP.json \
           --env K6_DATADOG_AGENT_URL="http://datadog-agent:8125" \
           --env VU=${{github.event.inputs.VU}} \
